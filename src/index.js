@@ -3,10 +3,24 @@ import serverConfig from "./config/serverConfig.js";
 import { connectDB } from "./config/dbConfig.js";
 import userRouter from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
-import { isLoggedIn } from "./validations/authValidator.js";
-import taskRouter from "./routes/taskRoutes.js";
+import http from "http";
+import { Server } from "socket.io";
+import createTaskRouter from "./routes/taskRoutes.js";
+import createActionRouter from "./routes/actionRoutes.js";
 
 const app = express();
+const server = http.createServer(app);
+
+// Setup socke.io
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST", "PUT", "DELETE"]
+    }
+});
+
+//store io in app locals to access from controllers/serverces
+app.set('io', io);
 
 app.use(express.json());
 app.use(cookieParser());
@@ -16,9 +30,10 @@ app.get("/hi", (req, res) => {
 })
 
 app.use("/users", userRouter);
-app.use("/tasks", taskRouter);
+app.use("/tasks", createTaskRouter(io));
+app.use("/actions", createActionRouter(io));
 
-app.listen(serverConfig.PORT, () => {
+server.listen(serverConfig.PORT, () => {
     connectDB();
     console.log(`Server is running on port ${serverConfig.PORT}`);
 });

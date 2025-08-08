@@ -1,10 +1,18 @@
 class TaskService {
-    constructor(taskRepository) {
+    constructor(taskRepository, actionService, io) {
         this.taskRepository = taskRepository;
+        this.actionService = actionService;
+        this.io = io;
     }
 
-    async createTask (task) {
+    async createTask (task, userId) {
         const newTask = await this.taskRepository.createTask(task);
+        // Real time task emit
+        this.io.emit('taskCreated', newTask);
+
+        // Log the action
+        await this.actionService.logAndEmit(userId, newTask._id, "created");
+
         return newTask;
     }
 
@@ -18,13 +26,23 @@ class TaskService {
         return task;
     }
 
-    async updateTask (taskId, task) {
+    async updateTask (taskId, task, userId) {
         const updatedTask = await this.taskRepository.updateTask(taskId, task);
+
+        this.io.emit('taskUpdated', updatedTask);
+
+        await this.actionService.logAndEmit(userId, updatedTask._id, "updated");
+
         return updatedTask;
     }
 
-    async deleteTask (taskId) {
+    async deleteTask (taskId, userId) {
         const deletedTask = await this.taskRepository.deleteTask(taskId);
+
+        this.io.emit('taskDeleted', deletedTask);
+
+        await this.actionService.logAndEmit(userId, deletedTask._id, "deleted");
+
         return deletedTask;
     }
 }

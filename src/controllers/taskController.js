@@ -1,6 +1,7 @@
 class TaskController {
-    constructor(taskService) {
+    constructor(taskService, io) {
         this.taskService = taskService;
+        this.io = io;
 
         this.createTask = this.createTask.bind(this);
         this.findTask = this.findTask.bind(this);
@@ -11,8 +12,9 @@ class TaskController {
 
     async createTask (req, res) {
         const task = req.body;
+        const userId = req.user.id;
         try {
-            const newTask = await this.taskService.createTask(task);
+            const newTask = await this.taskService.createTask(task, userId);
             res.status(200).json({
                 success: true,
                 message: "Task created successfully",
@@ -71,8 +73,9 @@ class TaskController {
     async updateTask (req, res) {
         const taskId = req.params.id;
         const task = req.body;
+        const userId = req.user.id;
         try {
-            const updatedTask = await this.taskService.updateTask(taskId, task);
+            const updatedTask = await this.taskService.updateTask(taskId, task, userId);
             res.status(200).json({
                 success: true,
                 message: "Task updated successfully",
@@ -91,8 +94,9 @@ class TaskController {
 
     async deleteTask (req, res) {
         const taskId = req.params.id;
+        const userId = req.user.id;
         try {
-            const deletedTask = await this.taskService.deleteTask(taskId);
+            const deletedTask = await this.taskService.deleteTask(taskId, userId);
             res.status(200).json({
                 success: true,
                 message: "Task deleted successfully",
