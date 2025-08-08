@@ -4,6 +4,7 @@ import { connectDB } from "./config/dbConfig.js";
 import userRouter from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { isLoggedIn } from "./validations/authValidator.js";
+import taskRouter from "./routes/taskRoutes.js";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.get("/hi", (req, res) => {
 })
 
 app.use("/users", userRouter);
+app.use("/tasks", taskRouter);
 
 app.listen(serverConfig.PORT, () => {
     connectDB();
