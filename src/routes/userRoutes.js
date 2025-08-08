@@ -10,5 +10,7 @@ const userService = new UserService(userRepository);
 const userController = new UserController(userService);
 
 userRouter.post("/", userController.createUser);
+userRouter.post("/login", userController.login);
+userRouter.post("/logout", userController.logout);
 
 export default userRouter;

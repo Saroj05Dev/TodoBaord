@@ -34,7 +34,11 @@ userSchema.pre('save', async function (next) {
 
 // Compare entered password with hashed password
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  const isPasswordValidate = await bcrypt.compare(enteredPassword, this.password);
+
+  if(!isPasswordValidate) {
+    throw {reason: "Invalid password, please try again later", statusCode: 401};
+  }
 };
 
 
