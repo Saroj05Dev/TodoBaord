@@ -71,10 +71,11 @@ class TaskController {
         }
     }
 
-    async updateTask (req, res) {
+    async updateTask(req, res) {
         const taskId = req.params.id;
         const task = req.body;
         const userId = req.user.id;
+
         try {
             const updatedTask = await this.taskService.updateTask(taskId, task, userId);
             res.status(200).json({
@@ -82,14 +83,23 @@ class TaskController {
                 message: "Task updated successfully",
                 data: updatedTask,
                 error: {}
-            })
+            });
         } catch (error) {
+            if (error.name === "ConflictError") {
+                return res.status(409).json({
+                    success: false,
+                    message: error.message,
+                    data: error.task, // send server version
+                    error: {}
+                });
+            }
+
             res.status(error.statusCode || 500).json({
                 success: false,
                 message: error.message,
                 data: {},
-                error: error
-            })
+                error: {}
+            });
         }
     }
 

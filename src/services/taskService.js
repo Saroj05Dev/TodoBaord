@@ -26,14 +26,38 @@ class TaskService {
         return task;
     }
 
-    async updateTask (taskId, task, userId) {
-        const updatedTask = await this.taskRepository.updateTask(taskId, task);
+    async updateTask(taskId, task, userId) {
+        // Get current task from DB
+        const currentTask = await this.taskRepository.findTaskById(taskId);
 
+        if (!currentTask) {
+        const error = new Error("Task not found");
+        error.statusCode = 404;
+        throw error;
+        }
+
+        // Conflict detection: Compare client's lastModified with DB's lastModified
+        if (task.lastModified && new Date(task.lastModified) < new Date(currentTask.lastModified)) {
+            const error = new Error("Conflict detected, task has been modified by another user.");
+            error.name = "ConflictError";
+            error.task = currentTask; // Send server version
+            throw error;
+        }
+
+        // Update task
+        const updatedTask = await this.taskRepository.updateTask(taskId, {
+            ...task,
+            lastModified: Date.now()
+        });
+
+        // Emit real-time update
         this.io.emit('taskUpdated', updatedTask);
 
+        // Log action
         await this.actionService.logAndEmit(userId, updatedTask._id, "updated");
 
         return updatedTask;
+
     }
 
     async deleteTask (taskId, userId) {
