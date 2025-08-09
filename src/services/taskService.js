@@ -45,6 +45,40 @@ class TaskService {
 
         return deletedTask;
     }
+
+    async smartAssign (taskId, userId) {
+        // 1. Find all users
+        const users = await this.taskRepository.getAllUsers(); // You'll add this in repo
+
+        // 2. Count active tasks for each user
+        const userTaskCounts = await Promise.all(
+            users.map(async (user) => {
+                const count = await this.taskRepository.countActiveTasksForUser(user._id);
+                return { userId: user._id, count: count };
+            })
+        )
+
+        // 3. Pick user with the lowest count
+        const targetUser = userTaskCounts.reduce((minUser, currUser) => 
+            currUser.count < minUser.count ? currUser : minUser
+        )
+        // 4. Update the task's assignedTo field
+        const updatedTask = await this.taskRepository.updateTask(taskId, {
+            assignedUser: targetUser.userId
+        })
+        
+        // 5. Emit real-time update
+        this.io.emit('taskUpdated', updatedTask);
+
+        // 6. Log the action
+        await this.actionService.logAndEmit(
+            userId, // the user whod triggered smart assign
+            updatedTask._id, // the task id
+            "assigned" // the action type
+        );
+
+        return updatedTask;
+    }
 }
 
 export default TaskService;

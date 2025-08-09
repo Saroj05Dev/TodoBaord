@@ -21,6 +21,7 @@ const createTaskRouter = (io) => {
     taskRouter.get("/:id", isLoggedIn, taskController.findTaskById);
     taskRouter.put("/:id", isLoggedIn, taskController.updateTask);
     taskRouter.delete("/:id", isLoggedIn, taskController.deleteTask);
+    taskRouter.put("/:id/smart-assign", isLoggedIn, taskController.smartAssign);
     
     return taskRouter;
 }

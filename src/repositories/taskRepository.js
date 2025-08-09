@@ -1,4 +1,5 @@
 import Task from "../schemas/taskSchema.js";
+import User from "../schemas/userSchema.js";
 
 class TaskRepository {
     async createTask (task) {
@@ -50,6 +51,29 @@ class TaskRepository {
             return deletedTask;
         } catch (error) {
             throw new Error("Error deleting task", error);
+        }
+    }
+
+    async getAllUsers () {
+        try {
+            const users = await User.find({}, "_id fullName email");
+            return users;
+        } catch (error) {
+            console.log(error)
+            throw new Error("Error getting all users", error);
+        }
+    }
+
+    async countActiveTasksForUser (userId) {
+        try {
+            const count = await Task.countDocuments({
+                assignedUser: userId,
+                status: { $in: ["Todo", "In Progress"] }
+            })
+            return count;
+        } catch (error) {
+            console.log(error)
+            throw new Error("Error counting active tasks for user", error);
         }
     }
 }

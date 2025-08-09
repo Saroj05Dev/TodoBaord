@@ -8,6 +8,7 @@ class TaskController {
         this.findTaskById = this.findTaskById.bind(this);
         this.updateTask = this.updateTask.bind(this);
         this.deleteTask = this.deleteTask.bind(this);
+        this.smartAssign = this.smartAssign.bind(this);
     }
 
     async createTask (req, res) {
@@ -101,6 +102,27 @@ class TaskController {
                 success: true,
                 message: "Task deleted successfully",
                 data: deletedTask,
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async smartAssign (req, res) {
+        const taskId = req.params.id;
+        const userId = req.user.id;
+        try {
+            const updatedTask = await this.taskService.smartAssign(taskId, userId);
+            res.status(200).json({
+                success: true,
+                message: "Tasks assigned successfully",
+                data: updatedTask,
                 error: {}
             })
         } catch (error) {
