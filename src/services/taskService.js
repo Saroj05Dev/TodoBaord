@@ -27,6 +27,7 @@ class TaskService {
     }
 
     async updateTask(taskId, task, userId) {
+
         // Get current task from DB
         const currentTask = await this.taskRepository.findTaskById(taskId);
 
@@ -100,6 +101,40 @@ class TaskService {
             updatedTask._id, // the task id
             "assigned" // the action type
         );
+
+        return updatedTask;
+    }
+
+    async resolveConflict (taskId, userId, resolutionType, clientTask) {
+        // Resolution type merge | overwrite
+
+        const currentTask = await this.taskRepository.findTaskById(taskId);
+        if(!currentTask) {
+            throw new Error("Task not found");
+        }
+
+        let updatedData;
+
+        if(resolutionType === "overwrite") {
+            updatedData = {
+                ...clientTask,
+                lastModified: Date.now()
+            }
+        } else if(resolutionType === "merge") {
+            updatedData = {
+                ...currentTask.toObject(),
+                ...clientTask, // client changes overwrite fields
+                lastModified: Date.now()
+            }
+        } else {
+            throw new Error("Invalid resolution type");
+        }
+
+        const updatedTask = await this.taskRepository.updateTask(taskId, updatedData);
+
+        this.io.emit('taskUpdated', updatedTask);
+
+        await this.actionService.logAndEmit(userId, updatedTask._id, "updated");
 
         return updatedTask;
     }

@@ -22,6 +22,7 @@ const createTaskRouter = (io) => {
     taskRouter.put("/:id", isLoggedIn, taskController.updateTask);
     taskRouter.delete("/:id", isLoggedIn, taskController.deleteTask);
     taskRouter.put("/:id/smart-assign", isLoggedIn, taskController.smartAssign);
+    taskRouter.post("/:id/resolve-conflict", isLoggedIn, taskController.resolveConflict);
     
     return taskRouter;
 }

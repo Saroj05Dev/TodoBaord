@@ -9,6 +9,7 @@ class TaskController {
         this.updateTask = this.updateTask.bind(this);
         this.deleteTask = this.deleteTask.bind(this);
         this.smartAssign = this.smartAssign.bind(this);
+        this.resolveConflict = this.resolveConflict.bind(this);
     }
 
     async createTask (req, res) {
@@ -133,6 +134,29 @@ class TaskController {
                 success: true,
                 message: "Tasks assigned successfully",
                 data: updatedTask,
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async resolveConflict (req, res) {
+        const taskId = req.params.id;
+        const { resolutionType, task } = req.body;
+        const userId = req.user.id
+
+        try {
+            const resolvedTask = await this.taskService.resolveConflict(taskId, userId, resolutionType, task);
+            res.status(200).json({
+                success: true,
+                message: `Conflict resolved via ${resolutionType}`,
+                data: resolvedTask,
                 error: {}
             })
         } catch (error) {
