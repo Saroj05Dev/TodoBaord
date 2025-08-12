@@ -15,6 +15,7 @@ class UserRepository {
             const newUser = await User.create(user);
             return newUser;
         } catch (error) {
+            console.log(error);
             throw new Error("Error creating user", error);
         }
     }

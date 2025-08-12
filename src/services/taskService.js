@@ -1,12 +1,13 @@
 class TaskService {
-    constructor(taskRepository, actionService, io) {
+    constructor(taskRepository, actionService, userRepository, io) {
         this.taskRepository = taskRepository;
         this.actionService = actionService;
+        this.userRepository = userRepository;
         this.io = io;
     }
 
     async createTask (task, userId) {
-        const newTask = await this.taskRepository.createTask(task);
+        const newTask = await this.taskRepository.createTask({...task, createdBy: userId});
         // Real time task emit
         this.io.emit('taskCreated', newTask);
 
@@ -37,18 +38,34 @@ class TaskService {
         throw error;
         }
 
+        if (
+            !currentTask.createdBy || 
+            (currentTask.createdBy.toString() !== userId.toString() &&
+            (!currentTask.assignedUser || currentTask.assignedUser.toString() !== userId.toString()))
+        ) {
+            const error = new Error("You are not authorized to update this task.");
+            error.statusCode = 403;
+            throw error;
+        }
+
         // Conflict detection: Compare client's lastModified with DB's lastModified
-        if (task.lastModified && new Date(task.lastModified) < new Date(currentTask.lastModified)) {
+        if (
+            task.lastModified &&
+            new Date(task.lastModified) < new Date(currentTask.lastModified) &&
+            currentTask.updatedBy?.toString() !== userId.toString()
+        ) {
             const error = new Error("Conflict detected, task has been modified by another user.");
             error.name = "ConflictError";
             error.task = currentTask; // Send server version
             throw error;
         }
 
+
         // Update task
         const updatedTask = await this.taskRepository.updateTask(taskId, {
             ...task,
-            lastModified: Date.now()
+            lastModified: Date.now(),
+            updatedBy: userId
         });
 
         // Emit real-time update
@@ -61,19 +78,35 @@ class TaskService {
 
     }
 
-    async deleteTask (taskId, userId) {
+    async deleteTask(taskId, userId) {
+        const currentTask = await this.taskRepository.findTaskById(taskId);
+        if (!currentTask) {
+            throw new Error("Task not found");
+        }
+        if (currentTask.createdBy.toString() !== userId.toString()) {
+            throw new Error("Only the creator can delete this task.");
+        }
+    
         const deletedTask = await this.taskRepository.deleteTask(taskId);
 
         this.io.emit('taskDeleted', deletedTask);
-
         await this.actionService.logAndEmit(userId, deletedTask._id, "deleted");
 
         return deletedTask;
     }
 
+
     async smartAssign (taskId, userId) {
         // 1. Find all users
-        const users = await this.taskRepository.getAllUsers(); // You'll add this in repo
+        const users = await this.taskRepository.getAllUsers();
+
+        const currentTask = await this.taskRepository.findTaskById(taskId);
+        if (currentTask.createdBy.toString() !== userId.toString()) {
+            const error = new Error("Only the creator can assign this task.");
+            error.statusCode = 403;
+            throw error;
+        }
+
 
         // 2. Count active tasks for each user
         const userTaskCounts = await Promise.all(
@@ -112,6 +145,16 @@ class TaskService {
         if(!currentTask) {
             throw new Error("Task not found");
         }
+
+        if (
+            currentTask.createdBy.toString() !== userId.toString() &&
+            (!currentTask.assignedUser || currentTask.assignedUser.toString() !== userId.toString())
+        ) {
+            const error = new Error("You are not authorized to resolve this conflict.");
+            error.statusCode = 403;
+            throw error;
+        }
+
 
         let updatedData;
 

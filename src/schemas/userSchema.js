@@ -22,7 +22,7 @@ const userSchema = mongoose.Schema({
         trim: true,
         match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$/, "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character"]
     },
-})
+});
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {
