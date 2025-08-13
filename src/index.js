@@ -7,6 +7,7 @@ import http from "http";
 import { Server } from "socket.io";
 import createTaskRouter from "./routes/taskRoutes.js";
 import createActionRouter from "./routes/actionRoutes.js";
+import createcommentRouter from "./routes/commentRoutes.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -32,6 +33,7 @@ app.get("/hi", (req, res) => {
 app.use("/users", userRouter);
 app.use("/tasks", createTaskRouter(io));
 app.use("/actions", createActionRouter(io));
+app.use("/comments", createcommentRouter(io))
 
 server.listen(serverConfig.PORT, () => {
     connectDB();
