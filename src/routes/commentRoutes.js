@@ -3,12 +3,14 @@ import CommentController from "../controllers/commentController.js";
 import { isLoggedIn } from "../validations/authValidator.js";
 import CommentRepository from "../repositories/commentRepository.js";
 import CommentService from "../services/commentService.js";
+import TaskRepository from "../repositories/taskRepository.js";
 
 const createcommentRouter = (io) => {
     const commentRouter = express.Router();
 
     const commentRepository = new CommentRepository();
-    const commentService = new CommentService(commentRepository, io);
+    const taskRepository = new TaskRepository();
+    const commentService = new CommentService(commentRepository, taskRepository, io);
     const commentController = new CommentController(commentService);
 
     // Add a comment
