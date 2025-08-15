@@ -9,8 +9,8 @@ class ActionRepository {
             }
             return action;
         } catch (error) {
-            console.log(error);
-            throw new Error("Error logging action", error);
+            console.error("Error in logAction", error)
+            throw error
         }
     }
 

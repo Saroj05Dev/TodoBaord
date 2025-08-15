@@ -4,13 +4,17 @@ import { isLoggedIn } from "../validations/authValidator.js";
 import CommentRepository from "../repositories/commentRepository.js";
 import CommentService from "../services/commentService.js";
 import TaskRepository from "../repositories/taskRepository.js";
+import ActionRepository from "../repositories/actionRepository.js";
+import ActionService from "../services/actionLogService.js";
 
 const createcommentRouter = (io) => {
     const commentRouter = express.Router();
 
     const commentRepository = new CommentRepository();
     const taskRepository = new TaskRepository();
-    const commentService = new CommentService(commentRepository, taskRepository, io);
+    const actionRepository = new ActionRepository();
+    const actionService = new ActionService(actionRepository, io);
+    const commentService = new CommentService(commentRepository, taskRepository, actionService, io);
     const commentController = new CommentController(commentService);
 
     // Add a comment
@@ -18,6 +22,9 @@ const createcommentRouter = (io) => {
 
     // Get all comments for a task
     commentRouter.get("/:taskId", isLoggedIn, commentController.getComments);
+
+    // delete a comment
+    commentRouter.delete("/:commentId", isLoggedIn, commentController.deleteComments);
 
     return commentRouter;
 }

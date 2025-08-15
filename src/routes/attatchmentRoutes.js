@@ -4,12 +4,16 @@ import AttatchmentRepository from "../repositories/attatchmentRepository.js";
 import AttatchmentService from "../services/attatchmentService.js";
 import AttatchmentController from "../controllers/attatchmentController.js";
 import { isLoggedIn } from "../validations/authValidator.js";
+import ActionService from "../services/actionLogService.js";
+import ActionRepository from "../repositories/actionRepository.js";
 
 const createAttachmentRouter = (io) => {
     const attatchmentRouter = express.Router();
 
     const attatchmentRepository = new AttatchmentRepository();
-    const attatchmentService = new AttatchmentService(attatchmentRepository, io);
+    const actionRepository = new ActionRepository()
+    const actionService = new ActionService(actionRepository, io);
+    const attatchmentService = new AttatchmentService(attatchmentRepository, actionService, io);
     const attatchmentController = new AttatchmentController(attatchmentService)
 
     attatchmentRouter.post(

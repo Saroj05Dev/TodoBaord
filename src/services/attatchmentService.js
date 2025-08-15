@@ -2,8 +2,9 @@ import fs from "fs";
 import cloudinary from "../config/cloudinaryConfig.js"
 
 class AttatchmentService {
-    constructor(attatchmentRepository, io) {
+    constructor(attatchmentRepository, actionService, io) {
         this.attatchmentRepository = attatchmentRepository;
+        this.actionService = actionService;
         this.io = io;
     }
 
@@ -44,6 +45,12 @@ class AttatchmentService {
 
         this.io.emit("attatchmentAdded", { taskId, attatchment: attatchmentData });
 
+        await this.actionService.logAndEmit(
+            userId,
+            taskId,
+            "attachment_added"
+        );
+
         return updatedTask;
     }
 
@@ -74,6 +81,12 @@ class AttatchmentService {
         const updatedTask = await this.attatchmentRepository.removeAttatchmentFromTask(taskId, publicId);
 
         this.io.emit("attatchmentDeleted", { taskId, publicId });
+
+        await this.actionService.logAndEmit(
+        userId,
+        taskId,
+        "attachment_deleted"
+);
 
         return updatedTask;
     }

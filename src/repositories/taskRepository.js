@@ -25,8 +25,10 @@ class TaskRepository {
     }
 
     async findTaskById (taskId) {
+        console.log("repo recieved id", taskId);
         try {
             const task = await Task.findById(taskId).populate("assignedUser", "fullName email");
+            console.log("repo found task", task)
             return task;
         } catch (error) {
             throw new Error("Error finding task", error);
