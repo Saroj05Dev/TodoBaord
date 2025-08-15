@@ -8,6 +8,7 @@ import { Server } from "socket.io";
 import createTaskRouter from "./routes/taskRoutes.js";
 import createActionRouter from "./routes/actionRoutes.js";
 import createcommentRouter from "./routes/commentRoutes.js";
+import createAttachmentRouter from "./routes/attatchmentRoutes.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +35,7 @@ app.use("/users", userRouter);
 app.use("/tasks", createTaskRouter(io));
 app.use("/actions", createActionRouter(io));
 app.use("/comments", createcommentRouter(io))
+app.use("/attatchments", createAttachmentRouter(io))
 
 server.listen(serverConfig.PORT, () => {
     connectDB();

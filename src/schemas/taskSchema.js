@@ -45,7 +45,23 @@ const taskSchema = new mongoose.Schema({
     updatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-    }
+    },
+
+    attatchments: [
+        {
+            filename: String,
+            fileUrl: String,
+            publicId: String,
+            uploadedBy: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+            uploadedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 
 }, {timestamps: true})
 
