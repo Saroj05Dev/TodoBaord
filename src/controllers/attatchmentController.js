@@ -32,7 +32,7 @@ class AttatchmentController {
 
     async deleteAttatchment (req, res) {
         try {
-            const updatedTask = await this.attatchmentService.deleteAttatchment(
+            const updatedTask = await this.attatchmentService.removeAttatchment(
                 req.params.taskId,
                 req.user.id,
                 req.params.publicId
@@ -45,7 +45,7 @@ class AttatchmentController {
                 error: {}
             })
         } catch (error) {
-            res.status(error.statuscode || 500) ({
+            res.status(error.statuscode || 500).json({
                 success: false,
                 message: error.message,
                 data: {},
