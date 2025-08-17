@@ -10,6 +10,7 @@ class TaskController {
         this.deleteTask = this.deleteTask.bind(this);
         this.smartAssign = this.smartAssign.bind(this);
         this.resolveConflict = this.resolveConflict.bind(this);
+        this.searchAndFilterTasks = this.searchAndFilterTasks.bind(this);
     }
 
     async createTask (req, res) {
@@ -168,6 +169,30 @@ class TaskController {
             })
         }
     }
+
+    async searchAndFilterTasks(req, res) {
+        try {
+          const { search, priority, status, assignedUser, createdBy } = req.query;
+      
+          const tasks = await this.taskService.searchAndFilterTasks({
+            search,
+            priority,
+            status,
+            assignedUser,
+            createdBy,
+          });
+      
+          res.status(200).json({ success: true, data: tasks });
+        } catch (error) {
+          console.error("Error in searchAndFilterTasks:", error);
+          res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Error finding task",
+          });
+        }
+      }
+      
+
 }
 
 export default TaskController;

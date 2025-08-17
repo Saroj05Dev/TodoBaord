@@ -19,7 +19,6 @@ const createTaskRouter = (io) => {
 
   taskRouter.post("/", isLoggedIn, taskController.createTask);
   taskRouter.get("/", isLoggedIn, taskController.findTask);
-  taskRouter.get("/:id", isLoggedIn, taskController.findTaskById);
   taskRouter.put("/:id", isLoggedIn, taskController.updateTask);
   taskRouter.delete(
     "/:id",
@@ -32,6 +31,8 @@ const createTaskRouter = (io) => {
     isLoggedIn,
     taskController.resolveConflict
   );
+  taskRouter.get("/search", isLoggedIn, taskController.searchAndFilterTasks);
+  taskRouter.get("/:id", isLoggedIn, taskController.findTaskById);
 
   return taskRouter;
 };

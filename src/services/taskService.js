@@ -181,6 +181,10 @@ class TaskService {
 
         return updatedTask;
     }
+
+    async searchAndFilterTasks (filters) {
+        return await this.taskRepository.searchAndFilterTasks(filters);
+    }
 }
 
 export default TaskService;

@@ -78,6 +78,29 @@ class TaskRepository {
             throw new Error("Error counting active tasks for user", error);
         }
     }
+
+    async searchAndFilterTasks({ search, priority, status, assignedUser, createdBy }) {
+        const query = {};
+        try {
+            if (search) {
+                query.$or = [
+                    { title: { $regex: search, $options: "i" } },
+                    { description: { $regex: search, $options: "i" } }
+                ];
+            }
+    
+            if (priority) query.priority = priority;
+            if (status) query.status = status;
+    
+            const result = await Task.find(query)
+            return result;
+    
+        } catch (error) {
+            console.error("Repo error:", error)
+            error.message = error.message || "Error finding task"
+            throw error;
+        }
+    }
 }
 
 export default TaskRepository;
