@@ -26,6 +26,9 @@ const actionSchema = new mongoose.Schema(
         "attachment_deleted",
         "comment_added",
         "comment_deleted",
+        "subtask_added",
+        "subtask_updated",
+        "subtask_deleted"
       ],
       required: true,
     },

@@ -17,21 +17,18 @@ const createTaskRouter = (io) => {
   const taskService = new TaskService(taskRepository, actionService, userRepository, io);
   const taskController = new TaskController(taskService, io);
 
-  taskRouter.post("/", isLoggedIn, taskController.createTask);
-  taskRouter.get("/", isLoggedIn, taskController.findTask);
-  taskRouter.put("/:id", isLoggedIn, taskController.updateTask);
-  taskRouter.delete(
-    "/:id",
-    isLoggedIn,
-    taskController.deleteTask
-  );
-  taskRouter.put("/:id/smart-assign", isLoggedIn, taskController.smartAssign);
-  taskRouter.post(
-    "/:id/resolve-conflict",
-    isLoggedIn,
-    taskController.resolveConflict
-  );
+  // CRUD root routes
+  taskRouter.post("/", isLoggedIn, taskController.createTask);   // Create
+  taskRouter.get("/", isLoggedIn, taskController.findTask);      // Get all
+
+  // Static / special routes
   taskRouter.get("/search", isLoggedIn, taskController.searchAndFilterTasks);
+  taskRouter.put("/:id/smart-assign", isLoggedIn, taskController.smartAssign);
+  taskRouter.post("/:id/resolve-conflict", isLoggedIn, taskController.resolveConflict);
+
+  // Dynamic id-based routes (must be last)
+  taskRouter.put("/:id", isLoggedIn, taskController.updateTask);
+  taskRouter.delete("/:id", isLoggedIn, taskController.deleteTask);
   taskRouter.get("/:id", isLoggedIn, taskController.findTaskById);
 
   return taskRouter;

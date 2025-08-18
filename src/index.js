@@ -9,6 +9,7 @@ import createTaskRouter from "./routes/taskRoutes.js";
 import createActionRouter from "./routes/actionRoutes.js";
 import createcommentRouter from "./routes/commentRoutes.js";
 import createAttachmentRouter from "./routes/attatchmentRoutes.js";
+import createSubTaskRouter from "./routes/subtasksRoutes.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +37,7 @@ app.use("/tasks", createTaskRouter(io));
 app.use("/actions", createActionRouter(io));
 app.use("/comments", createcommentRouter(io))
 app.use("/attatchments", createAttachmentRouter(io))
+app.use("/tasks", createSubTaskRouter(io));
 
 server.listen(serverConfig.PORT, () => {
     connectDB();
