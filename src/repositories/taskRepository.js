@@ -15,22 +15,33 @@ class TaskRepository {
         }
     }
 
-    async findTask () {
+    async findTask (userId) {
         try {
-            const task = await Task.find().populate("assignedUser", "fullName email");
+            const task = await Task.find({
+            $or: [
+                { createdBy: userId },
+                { assignedUser: userId }
+            ]
+        }).populate("createdBy assignedUser", "fullName email");
             return task;
         } catch (error) {
             throw new Error("Error finding task", error);
         }
     }
 
-    async findTaskById (taskId) {
-        console.log("repo recieved id", taskId);
+    async findTaskById (taskId, userId) {
         try {
-            const task = await Task.findById(taskId).populate("assignedUser", "fullName email");
+            const task = await Task.findOne({
+            _id: taskId,
+            $or: [
+                { createdBy: userId },
+                { assignedUser: userId }
+            ]
+            }).populate("createdBy assignedUser", "fullName email");
             console.log("repo found task", task)
             return task;
         } catch (error) {
+            console.log(error)
             throw new Error("Error finding task", error);
         }
     }

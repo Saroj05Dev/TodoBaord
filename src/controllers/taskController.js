@@ -35,8 +35,9 @@ class TaskController {
     }
 
     async findTask (req, res) {
+        const userId = req.user.id;
         try {
-            const tasks = await this.taskService.findTask();
+            const tasks = await this.taskService.findTask(userId);
             res.status(200).json({
                 success: true,
                 message: "Tasks found successfully",
@@ -55,8 +56,9 @@ class TaskController {
 
     async findTaskById (req, res) {
         const taskId = req.params.id;
+        const userId = req.user.id;
         try {
-            const task = await this.taskService.findTaskById(taskId);
+            const task = await this.taskService.findTaskById(taskId, userId);
             res.status(200).json({
                 success: true,
                 message: "Task found successfully",

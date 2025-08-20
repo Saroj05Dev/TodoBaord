@@ -17,13 +17,16 @@ class TaskService {
         return newTask;
     }
 
-    async findTask () {
-        const tasks = await this.taskRepository.findTask();
+    async findTask (userId) {
+        const tasks = await this.taskRepository.findTask(userId);
         return tasks;
     }
 
-    async findTaskById (taskId) {
-        const task = await this.taskRepository.findTaskById(taskId);
+    async findTaskById (taskId, userId) {
+        const task = await this.taskRepository.findTaskById(taskId, userId);
+        if (!task) {
+            throw new Error("Task not found or you are not authorized to view it");
+        }
         return task;
     }
 
