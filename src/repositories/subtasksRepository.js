@@ -14,14 +14,19 @@ class SubTaskRepository {
         }
     }
 
-    // async findSubTaskById (subtaskId) {
-    //     try {
-    //         return await SubTasks.findById(subtaskId);
-    //     } catch (error) {
-    //         console.log(error);
-    //         throw new Error("Error finding subtask", error);
-    //     }
-    // }
+    async findSubTaskById(subtaskId) {
+        try {
+            return await SubTasks.findById(subtaskId)
+                .populate([
+                    { path: "assignedUser", select: "fullName email" },
+                    { path: "createdBy", select: "fullName email" }
+                ]);
+        } catch (error) {
+            console.log(error);
+            throw new Error("Error finding subtask", error);
+        }
+    }
+
 
     async deleteSubTask (subtaskId) {
         try {
