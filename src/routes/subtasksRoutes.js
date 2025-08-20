@@ -5,15 +5,17 @@ import ActionRepository from "../repositories/actionRepository.js";
 import ActionService from "../services/actionLogService.js";
 import SubTaskController from "../controllers/subtasksController.js";
 import { isLoggedIn } from "../validations/authValidator.js"
+import TaskRepository from "../repositories/taskRepository.js";
 
 const createSubTaskRouter = (io) => {
 
     const subtaskRouter = express.Router();
 
     const subtaskRepository = new SubTaskRepository();
+    const taskRepository = new TaskRepository();
     const actionRepository = new ActionRepository()
     const actionService = new ActionService(actionRepository, io)
-    const subtaskService = new SubTaskService(subtaskRepository, actionService, io);
+    const subtaskService = new SubTaskService(subtaskRepository, taskRepository, actionService, io);
     const subtaskController = new SubTaskController(subtaskService);
 
     // Routes 

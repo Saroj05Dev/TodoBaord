@@ -78,8 +78,9 @@ class SubTaskController {
 
     async listSubtasks (req, res) {
         const { taskId } = req.params;
+        const userId = req.user.id;
         try {
-            const subtasks = await this.subtaskService.listSubtasks(taskId);
+            const subtasks = await this.subtaskService.listSubtasks(taskId, userId);
 
             res.status(200).json({
                 success: true,

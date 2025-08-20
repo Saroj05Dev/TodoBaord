@@ -38,7 +38,6 @@ class TaskRepository {
                 { assignedUser: userId }
             ]
             }).populate("createdBy assignedUser", "fullName email");
-            console.log("repo found task", task)
             return task;
         } catch (error) {
             console.log(error)

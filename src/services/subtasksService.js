@@ -1,6 +1,7 @@
 class SubTaskService {
-    constructor(subtaskRepository, actionService, io) {
+    constructor(subtaskRepository,taskRepository, actionService, io) {
         this.subtaskRepository = subtaskRepository;
+        this.taskRepository = taskRepository;
         this.actionService = actionService;
         this.io = io;
     }
@@ -74,7 +75,15 @@ class SubTaskService {
         return deleted;
     }
 
-    async listSubtasks (taskId) {
+    async listSubtasks (taskId, userId) {
+        // 1. First check if the uer has access to the parent task
+        const parentTask = await this.taskRepository.findTaskById(taskId, userId);
+        if (!parentTask) {
+            const err = new Error("Parent task not found or you are not authorized to view it.");
+            err.statusCode = 404;
+            throw err;
+        }
+        // 2. If authorized then list the subtasks
         return await this.subtaskRepository.getSubTasksByTaskId(taskId);
     }
 }
