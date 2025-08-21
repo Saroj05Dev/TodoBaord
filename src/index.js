@@ -10,6 +10,7 @@ import createActionRouter from "./routes/actionRoutes.js";
 import createcommentRouter from "./routes/commentRoutes.js";
 import createAttachmentRouter from "./routes/attatchmentRoutes.js";
 import createSubTaskRouter from "./routes/subtasksRoutes.js";
+import cors from "cors";
 
 const app = express();
 const server = http.createServer(app);
@@ -17,8 +18,8 @@ const server = http.createServer(app);
 // Setup socke.io
 const io = new Server(server, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE"]
+        origin: "http://localhost:5173",
+        credentials: true
     }
 });
 
@@ -27,6 +28,11 @@ app.set('io', io);
 
 app.use(express.json());
 app.use(cookieParser());
+
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}))
 
 app.get("/hi", (req, res) => {
     res.send("hello")

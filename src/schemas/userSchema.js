@@ -20,8 +20,24 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$/, "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character"]
+        match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$/, "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character"],
+        select: false
     },
+});
+
+// Automatically remove password whenever converting to JSON or Object
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.password;
+    return ret;
+  }
+});
+
+userSchema.set("toObject", {
+  transform: function (doc, ret) {
+    delete ret.password;
+    return ret;
+  }
 });
 
 // Hash password before saving
