@@ -21,7 +21,6 @@ class UserService {
         }
 
         return newUser;
-
     }
 
     async loginUser (authDetails) {

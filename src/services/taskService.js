@@ -98,8 +98,8 @@ class TaskService {
         return deletedTask;
     }
 
-    async countTasks () {
-        return this.taskRepository.countAll();
+    async countTasks (userId) {
+        return this.taskRepository.countAll(userId);
     }
 
 

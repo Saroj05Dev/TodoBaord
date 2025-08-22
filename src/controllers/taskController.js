@@ -130,8 +130,9 @@ class TaskController {
     }
 
     async countAllTasks (req, res) {
+        const userId = req.user.id;
         try {
-            const count = await this.taskService.countTasks();
+            const count = await this.taskService.countTasks(userId);
             res.status(200).json({
                 success: true,
                 message: "Task count found successfully",
@@ -193,8 +194,9 @@ class TaskController {
     }
 
     async searchAndFilterTasks(req, res) {
+        const userId = req.user.id;
         try {
-          const { search, priority, status, assignedUser, createdBy } = req.query;
+          const { search, priority, status, assignedUser, createdBy} = req.query;
       
           const tasks = await this.taskService.searchAndFilterTasks({
             search,
@@ -202,6 +204,7 @@ class TaskController {
             status,
             assignedUser,
             createdBy,
+            userId
           });
       
           res.status(200).json({ success: true, data: tasks });

@@ -89,32 +89,50 @@ class TaskRepository {
         }
     }
 
-    async searchAndFilterTasks({ search, priority, status, assignedUser, createdBy }) {
-        const query = {};
+    async searchAndFilterTasks({ search, priority, status, userId }) {
         try {
+            // base restriction: user must be creator or assigned
+            const query = {
+                $or: [
+                    { createdBy: userId },
+                    { assignedUser: userId }
+                ]
+            };
+
+            // add search filters
             if (search) {
-                query.$or = [
-                    { title: { $regex: search, $options: "i" } },
-                    { description: { $regex: search, $options: "i" } }
+                query.$and = [
+                    {
+                        $or: [
+                            { title: { $regex: search, $options: "i" } },
+                            { description: { $regex: search, $options: "i" } }
+                        ]
+                    }
                 ];
             }
-    
+
+            // add extra filters
             if (priority) query.priority = priority;
             if (status) query.status = status;
-    
-            const result = await Task.find(query)
+
+            const result = await Task.find(query);
             return result;
-    
         } catch (error) {
-            console.error("Repo error:", error)
-            error.message = error.message || "Error finding task"
+            console.error("Repo error:", error);
+            error.message = error.message || "Error finding task";
             throw error;
         }
     }
 
-    async countAll () {
+
+    async countAll (userId) {
         try {
-            const totalTasks = await Task.countDocuments();
+            const totalTasks = await Task.countDocuments({
+                $or: [
+                    { createdBy: userId },
+                    { assignedUser: userId }
+                ]
+            });
             return totalTasks;
         } catch (error) {
             console.log(error);
