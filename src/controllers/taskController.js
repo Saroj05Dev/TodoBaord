@@ -11,6 +11,7 @@ class TaskController {
         this.smartAssign = this.smartAssign.bind(this);
         this.resolveConflict = this.resolveConflict.bind(this);
         this.searchAndFilterTasks = this.searchAndFilterTasks.bind(this);
+        this.countAllTasks = this.countAllTasks.bind(this);
     }
 
     async createTask (req, res) {
@@ -116,6 +117,25 @@ class TaskController {
                 success: true,
                 message: "Task deleted successfully",
                 data: deletedTask,
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async countAllTasks (req, res) {
+        try {
+            const count = await this.taskService.countTasks();
+            res.status(200).json({
+                success: true,
+                message: "Task count found successfully",
+                data: count,
                 error: {}
             })
         } catch (error) {

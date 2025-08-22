@@ -111,6 +111,16 @@ class TaskRepository {
             throw error;
         }
     }
+
+    async countAll () {
+        try {
+            const totalTasks = await Task.countDocuments();
+            return totalTasks;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
 }
 
 export default TaskRepository;

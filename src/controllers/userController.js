@@ -5,6 +5,7 @@ class UserController {
         this.createUser = this.createUser.bind(this);
         this.login = this.login.bind(this)
         this.logout = this.logout.bind(this)
+        this.countAllUsers = this.countAllUsers.bind(this)
     }
 
     async createUser (req, res) {
@@ -35,6 +36,7 @@ class UserController {
                 httpOnly: true,
                 sameSite: "none",
                 secure: false,
+                sameSite: "lax",
                 maxAge: 7 * 60 * 60 * 1000 // 7 days
             })
 
@@ -45,6 +47,25 @@ class UserController {
                 error: {}
             })
 
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async countAllUsers (req, res) {
+        try {
+            const count = await this.userService.countUsers();
+            res.status(200).json({
+                success: true,
+                message: "User count found successfully",
+                data: count,
+                error: {}
+            })
         } catch (error) {
             res.status(error.statusCode || 500).json({
                 success: false,

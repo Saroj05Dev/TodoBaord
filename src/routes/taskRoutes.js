@@ -20,6 +20,7 @@ const createTaskRouter = (io) => {
   // CRUD root routes
   taskRouter.post("/", isLoggedIn, taskController.createTask);   // Create
   taskRouter.get("/", isLoggedIn, taskController.findTask);      // Get all
+  taskRouter.get("/count", isLoggedIn, taskController.countAllTasks);
 
   // Static / special routes
   taskRouter.get("/search", isLoggedIn, taskController.searchAndFilterTasks);

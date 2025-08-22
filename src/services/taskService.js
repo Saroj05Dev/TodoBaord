@@ -98,6 +98,10 @@ class TaskService {
         return deletedTask;
     }
 
+    async countTasks () {
+        return this.taskRepository.countAll();
+    }
+
 
     async smartAssign (taskId, userId) {
         // 1. Find all users

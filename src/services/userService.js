@@ -43,6 +43,10 @@ class UserService {
             email: existingUser.email
         }}
     }
+
+    async countUsers () {
+        return await this.userRepository.countAllUsers();
+    }
 }
 
 export default UserService;
