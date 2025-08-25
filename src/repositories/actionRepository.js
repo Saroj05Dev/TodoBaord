@@ -17,7 +17,7 @@ class ActionRepository {
     async getRecentActions (limit = 20) {
         try {
             const actions = await Action.find()
-                .sort({ timetamp: -1 })
+                .sort({ createdAt: -1 })
                 .limit(limit)
                 .populate("user", "fullName email")
                 .populate("task", "title");

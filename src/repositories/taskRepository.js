@@ -2,143 +2,147 @@ import Task from "../schemas/taskSchema.js";
 import User from "../schemas/userSchema.js";
 
 class TaskRepository {
-    async createTask (task) {
-        try {
-            const newTask = await Task.create(task);
-            return newTask;
-        } catch (error) {
-            console.log(error);
-            if(error.statusCode === 11000) {
-                throw {reason: "Task with this title already exists", statusCode: 400};
-            }
-            throw new Error("Error creating task", error);
-        }
+  async createTask(task) {
+    try {
+      const newTask = await Task.create(task);
+      return newTask;
+    } catch (error) {
+      console.log(error);
+      if (error.statusCode === 11000) {
+        throw {
+          reason: "Task with this title already exists",
+          statusCode: 400,
+        };
+      }
+      throw new Error("Error creating task", error);
+    }
+  }
+
+  async findTask(userId) {
+    try {
+      const task = await Task.find({
+        $or: [{ createdBy: userId }, { assignedUser: userId }],
+      }).populate("createdBy assignedUser", "fullName email");
+      return task;
+    } catch (error) {
+      throw new Error("Error finding task", error);
+    }
+  }
+
+  async findTaskById(taskId) {
+
+  const mongoose = (await import("mongoose")).default;
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    console.log("Invalid ObjectId:", taskId);
+    return null;
+  }
+
+  try {
+    const task = await Task.findById(taskId)
+      .populate("createdBy assignedUser", "fullName email");
+
+    return task;
+  } catch (error) {
+    console.error("Repo.findTaskById error:", error.message);
+    throw error;
+  }
+}
+
+  async updateTask(taskId, task) {
+  try {
+
+    const updatedTask = await Task.findByIdAndUpdate(taskId, task, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedTask) {
+      console.log("Repo: Task not found during update:", taskId);
+      return null;
     }
 
-    async findTask (userId) {
-        try {
-            const task = await Task.find({
+    return updatedTask;
+  } catch (error) {
+    console.error("Repo.updateTask error:", error.message);
+    throw error;
+  }
+}
+
+  async deleteTask(taskId) {
+    try {
+      const deletedTask = await Task.findByIdAndDelete(taskId);
+      return deletedTask;
+    } catch (error) {
+      throw new Error("Error deleting task", error);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const users = await User.find({}, "_id fullName email");
+      return users;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error getting all users", error);
+    }
+  }
+
+  async countActiveTasksForUser(userId) {
+    try {
+      const count = await Task.countDocuments({
+        assignedUser: userId,
+        status: { $in: ["Todo", "In Progress"] },
+      });
+      return count;
+    } catch (error) {
+      console.log(error);
+      throw new Error("Error counting active tasks for user", error);
+    }
+  }
+
+  async searchAndFilterTasks({ search, priority, status, userId }) {
+    try {
+      // base restriction: user must be creator or assigned
+      const query = {
+        $or: [{ createdBy: userId }, { assignedUser: userId }],
+      };
+
+      // add search filters
+      if (search) {
+        query.$and = [
+          {
             $or: [
-                { createdBy: userId },
-                { assignedUser: userId }
-            ]
-        }).populate("createdBy assignedUser", "fullName email");
-            return task;
-        } catch (error) {
-            throw new Error("Error finding task", error);
-        }
+              { title: { $regex: search, $options: "i" } },
+              { description: { $regex: search, $options: "i" } },
+            ],
+          },
+        ];
+      }
+
+      // add extra filters
+      if (priority) query.priority = priority;
+      if (status) query.status = status;
+
+      const result = await Task.find(query);
+      return result;
+    } catch (error) {
+      console.error("Repo error:", error);
+      error.message = error.message || "Error finding task";
+      throw error;
     }
+  }
 
-    async findTaskById (taskId, userId) {
-        try {
-            const task = await Task.findOne({
-            _id: taskId,
-            $or: [
-                { createdBy: userId },
-                { assignedUser: userId }
-            ]
-            }).populate("createdBy assignedUser", "fullName email");
-            return task;
-        } catch (error) {
-            console.log(error)
-            throw new Error("Error finding task", error);
-        }
+  async countAll(userId) {
+    try {
+      const totalTasks = await Task.countDocuments({
+        $or: [{ createdBy: userId }, { assignedUser: userId }],
+      });
+      return totalTasks;
+    } catch (error) {
+      console.log(error);
+      throw error;
     }
-
-    async updateTask (taskId, task) {
-        try {
-            const updatedTask = await Task.findByIdAndUpdate(taskId, task, { 
-                new: true, 
-                runValidators: true 
-            });
-            return updatedTask;
-        } catch (error) {
-            throw new Error("Error updating task", error);
-        }
-    }
-
-    async deleteTask (taskId) {
-        try {
-            const deletedTask = await Task.findByIdAndDelete(taskId);
-            return deletedTask;
-        } catch (error) {
-            throw new Error("Error deleting task", error);
-        }
-    }
-
-    async getAllUsers () {
-        try {
-            const users = await User.find({}, "_id fullName email");
-            return users;
-        } catch (error) {
-            console.log(error)
-            throw new Error("Error getting all users", error);
-        }
-    }
-
-    async countActiveTasksForUser (userId) {
-        try {
-            const count = await Task.countDocuments({
-                assignedUser: userId,
-                status: { $in: ["Todo", "In Progress"] }
-            })
-            return count;
-        } catch (error) {
-            console.log(error)
-            throw new Error("Error counting active tasks for user", error);
-        }
-    }
-
-    async searchAndFilterTasks({ search, priority, status, userId }) {
-        try {
-            // base restriction: user must be creator or assigned
-            const query = {
-                $or: [
-                    { createdBy: userId },
-                    { assignedUser: userId }
-                ]
-            };
-
-            // add search filters
-            if (search) {
-                query.$and = [
-                    {
-                        $or: [
-                            { title: { $regex: search, $options: "i" } },
-                            { description: { $regex: search, $options: "i" } }
-                        ]
-                    }
-                ];
-            }
-
-            // add extra filters
-            if (priority) query.priority = priority;
-            if (status) query.status = status;
-
-            const result = await Task.find(query);
-            return result;
-        } catch (error) {
-            console.error("Repo error:", error);
-            error.message = error.message || "Error finding task";
-            throw error;
-        }
-    }
-
-
-    async countAll (userId) {
-        try {
-            const totalTasks = await Task.countDocuments({
-                $or: [
-                    { createdBy: userId },
-                    { assignedUser: userId }
-                ]
-            });
-            return totalTasks;
-        } catch (error) {
-            console.log(error);
-            throw error;
-        }
-    }
+  }
 }
 
 export default TaskRepository;
