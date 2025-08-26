@@ -6,6 +6,7 @@ class UserController {
         this.login = this.login.bind(this)
         this.logout = this.logout.bind(this)
         this.countAllUsers = this.countAllUsers.bind(this)
+        this.getCurrentUser = this.getCurrentUser.bind(this)
     }
 
     async createUser (req, res) {
@@ -34,10 +35,9 @@ class UserController {
 
             res.cookie("authToken", user.token, {
                 httpOnly: true,
-                sameSite: "none",
                 secure: false,
                 sameSite: "lax",
-                maxAge: 7 * 60 * 60 * 1000 // 7 days
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
             })
 
             res.status(200).json({
@@ -64,6 +64,31 @@ class UserController {
                 success: true,
                 message: "User count found successfully",
                 data: count,
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async getCurrentUser (req, res) {
+        const userId = req.user.id;
+        try {
+            const user = await this.userService.findUserById(userId);
+            const { fullName, email, role } = user;
+            res.status(200).json({
+                success: true,
+                message: "User found successfully",
+                data: {
+                    fullName,
+                    email,
+                    role
+                },
                 error: {}
             })
         } catch (error) {

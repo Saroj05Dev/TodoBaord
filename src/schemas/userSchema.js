@@ -23,6 +23,12 @@ const userSchema = mongoose.Schema({
         match: [/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[^A-Za-z0-9]).{8,}$/, "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character"],
         select: false
     },
+
+    role: {
+        type: String,
+        enum: ["admin", "user", "owner", "guest"],
+        default: "user"
+    }
 });
 
 // Automatically remove password whenever converting to JSON or Object

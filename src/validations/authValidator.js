@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import serverConfig from "../config/serverConfig.js";
 
 export async function isLoggedIn(req, res, next) {
-  console.log("isLoggedIn middleware triggered");
 
   const token = req.cookies?.authToken;
   if (!token) {

@@ -83,7 +83,6 @@ async updateTask(taskId, task, userId) {
     throw error;
   }
 
-  console.log("Service: Task updated successfully", updatedTask._id);
 
   // Emit real-time update
   this.io.emit("taskUpdated", updatedTask);

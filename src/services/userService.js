@@ -46,6 +46,10 @@ class UserService {
     async countUsers () {
         return await this.userRepository.countAllUsers();
     }
+
+    async findUserById (userId) {
+        return await this.userRepository.findUser({ _id: userId });
+    }
 }
 
 export default UserService;
