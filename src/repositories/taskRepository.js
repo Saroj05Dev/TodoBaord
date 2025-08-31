@@ -7,16 +7,19 @@ class TaskRepository {
       const newTask = await Task.create(task);
       return newTask;
     } catch (error) {
-      console.log(error);
-      if (error.statusCode === 11000) {
-        throw {
-          reason: "Task with this title already exists",
-          statusCode: 400,
-        };
+      console.error("Create task error:", error);
+
+      if (error.code === 11000) {
+        const err = new Error("Task with this title already exists");
+        err.statusCode = 400;
+        throw err;
       }
-      throw new Error("Error creating task", error);
+
+      const err = new Error(error.message || "Error creating task");
+      err.statusCode = 500;
+      throw err;
     }
-  }
+  } 
 
   async findTask(userId) {
     try {

@@ -7,6 +7,7 @@ class UserController {
         this.logout = this.logout.bind(this)
         this.countAllUsers = this.countAllUsers.bind(this)
         this.getCurrentUser = this.getCurrentUser.bind(this)
+        this.getAllUsers = this.getAllUsers.bind(this)
     }
 
     async createUser (req, res) {
@@ -89,6 +90,25 @@ class UserController {
                     email,
                     role
                 },
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statusCode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async getAllUsers (req, res) {
+        try {
+            const users = await this.userService.getAllUsers();
+            res.status(200).json({
+                success: true,
+                message: "Users found successfully",
+                data: users,
                 error: {}
             })
         } catch (error) {

@@ -15,5 +15,6 @@ userRouter.post("/login", userController.login);
 userRouter.post("/logout", userController.logout);
 userRouter.get("/count", isLoggedIn, userController.countAllUsers);
 userRouter.get("/me", isLoggedIn, userController.getCurrentUser);
+userRouter.get("/", isLoggedIn, userController.getAllUsers);
 
 export default userRouter;

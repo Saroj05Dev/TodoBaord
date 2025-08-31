@@ -29,6 +29,12 @@ class UserRepository {
             throw error;
         }
     }
+
+    async getAllUsers() {
+        return await User.find({}, "_id fullName email"); 
+        // just return necessary fields
+    }
+
 }
 
 export default UserRepository;
