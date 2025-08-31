@@ -111,7 +111,6 @@ class TaskController {
   }
 }
 
-
     async deleteTask (req, res) {
         const taskId = req.params.id;
         const userId = req.user.id;

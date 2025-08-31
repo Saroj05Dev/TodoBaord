@@ -120,11 +120,16 @@ async updateTask(taskId, task, userId) {
     const users = await this.taskRepository.getAllUsers();
 
     const currentTask = await this.taskRepository.findTaskById(taskId);
-    if (currentTask.createdBy.toString() !== userId.toString()) {
+    const creatorId = currentTask.createdBy._id 
+      ? currentTask.createdBy._id.toString() 
+      : currentTask.createdBy.toString();
+
+    if (creatorId !== userId.toString()) {
       const error = new Error("Only the creator can assign this task.");
       error.statusCode = 403;
       throw error;
     }
+
 
     // 2. Count active tasks for each user
     const userTaskCounts = await Promise.all(
