@@ -34,65 +34,64 @@ class TaskService {
   }
 
   // taskService.js
-async updateTask(taskId, task, userId) {
+  async updateTask(taskId, task, userId) {
+    // Get current task from DB
+    const currentTask = await this.taskRepository.findTaskById(taskId);
 
-  // Get current task from DB
-  const currentTask = await this.taskRepository.findTaskById(taskId);
+    if (!currentTask) {
+      console.log("Service: Task not found in DB", taskId);
+      const error = new Error("Task not found!");
+      error.statusCode = 404;
+      throw error;
+    }
 
-  if (!currentTask) {
-    console.log("Service: Task not found in DB", taskId);
-    const error = new Error("Task not found!");
-    error.statusCode = 404;
-    throw error;
+    // Ownership check (check ObjectId correctly)
+    const createdById = currentTask.createdBy?._id?.toString();
+    const assignedUserId = currentTask.assignedUser?._id?.toString();
+
+    if (createdById !== String(userId) && assignedUserId !== String(userId)) {
+      console.log("Service: User not authorized", userId);
+      const error = new Error("You are not authorized to update this task.");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Conflict detection
+    if (
+      task.lastModified &&
+      new Date(task.lastModified) < new Date(currentTask.lastModified) &&
+      currentTask.updatedBy?.toString() !== userId.toString()
+    ) {
+      console.log("Service: Conflict detected");
+      const error = new Error(
+        "Conflict detected, task has been modified by another user."
+      );
+      error.name = "ConflictError";
+      error.task = currentTask;
+      throw error;
+    }
+
+    // Update task
+    const updatedTask = await this.taskRepository.updateTask(taskId, {
+      ...task,
+      lastModified: Date.now(),
+      updatedBy: userId,
+    });
+
+    if (!updatedTask) {
+      const error = new Error("Task not found during update");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Emit real-time update
+    this.io.emit("taskUpdated", updatedTask);
+
+    // Log action
+    await this.actionService.logAndEmit(userId, updatedTask._id, "updated");
+
+    return updatedTask;
   }
-
-  // Ownership check (check ObjectId correctly)
-  const createdById = currentTask.createdBy?._id?.toString();
-  const assignedUserId = currentTask.assignedUser?._id?.toString();
-
-  if (createdById !== String(userId) && assignedUserId !== String(userId)) {
-    console.log("Service: User not authorized", userId);
-    const error = new Error("You are not authorized to update this task.");
-    error.statusCode = 403;
-    throw error;
-  }
-
-  // Conflict detection
-  if (
-    task.lastModified &&
-    new Date(task.lastModified) < new Date(currentTask.lastModified) &&
-    currentTask.updatedBy?.toString() !== userId.toString()
-  ) {
-    console.log("Service: Conflict detected");
-    const error = new Error("Conflict detected, task has been modified by another user.");
-    error.name = "ConflictError";
-    error.task = currentTask;
-    throw error;
-  }
-
-  // Update task
-  const updatedTask = await this.taskRepository.updateTask(taskId, {
-    ...task,
-    lastModified: Date.now(),
-    updatedBy: userId,
-  });
-
-  if (!updatedTask) {
-    const error = new Error("Task not found during update");
-    error.statusCode = 404;
-    throw error;
-  }
-
-
-  // Emit real-time update
-  this.io.emit("taskUpdated", updatedTask);
-
-  // Log action
-  await this.actionService.logAndEmit(userId, updatedTask._id, "updated");
-
-  return updatedTask;
-}
-
 
   async deleteTask(taskId, userId) {
     const currentTask = await this.taskRepository.findTaskById(taskId);
@@ -120,8 +119,8 @@ async updateTask(taskId, task, userId) {
     const users = await this.taskRepository.getAllUsers();
 
     const currentTask = await this.taskRepository.findTaskById(taskId);
-    const creatorId = currentTask.createdBy._id 
-      ? currentTask.createdBy._id.toString() 
+    const creatorId = currentTask.createdBy._id
+      ? currentTask.createdBy._id.toString()
       : currentTask.createdBy.toString();
 
     if (creatorId !== userId.toString()) {
@@ -129,7 +128,6 @@ async updateTask(taskId, task, userId) {
       error.statusCode = 403;
       throw error;
     }
-
 
     // 2. Count active tasks for each user
     const userTaskCounts = await Promise.all(
@@ -171,10 +169,16 @@ async updateTask(taskId, task, userId) {
       throw new Error("Task not found");
     }
 
+    const createdById =
+      currentTask.createdBy?._id?.toString() ||
+      currentTask.createdBy?.toString();
+    const assignedUserId =
+      currentTask.assignedUser?._id?.toString() ||
+      currentTask.assignedUser?.toString();
+
     if (
-      currentTask.createdBy.toString() !== userId.toString() &&
-      (!currentTask.assignedUser ||
-        currentTask.assignedUser.toString() !== userId.toString())
+      createdById !== userId.toString() &&
+      assignedUserId !== userId.toString()
     ) {
       const error = new Error(
         "You are not authorized to resolve this conflict."
