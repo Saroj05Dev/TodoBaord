@@ -1,29 +1,41 @@
 import Task from "../schemas/taskSchema.js";
 
-class AttatchmentRepository {
-    async addAttatchmentToTask(taskId, attatchmentData) {
+class AttachmentRepository {
+    async addAttachmentsToTasks(taskId, attachmentsData) {
         try {
             const res = await Task.findByIdAndUpdate(
                 taskId,
-                { $push: { attatchments: attatchmentData } },
+                { $push: { attachments: attachmentsData } },
                 { new: true }
             )
+            return res
         } catch (error) {
             console.log(error);
-            throw new Error("Error attatching file", error)
+            throw new Error("Error attaching file", error)
         }
     }
 
-    async removeAttatchmentFromTask(taskId, publicId) {
+    async removeAttachmentsFromTask(taskId, publicId) {
         try {
             const res = await Task.findByIdAndUpdate(
                 taskId,
-                { $pull: { attatchments: { publicId } } },
+                { $pull: { attachments: { publicId } } },
                 { new: true }
             )
+            return res
         } catch (error) {
             console.log(error);
-            throw new Error("Error removing attatchment", error)
+            throw new Error("Error removing attachments", error)
+        }
+    }
+
+    async fetchAllAttachments(taskId) {
+        try {
+            const task = await Task.findById(taskId).populate("attachments");
+            return task.attachments;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Error fetching all attachments", error)
         }
     }
 
@@ -32,4 +44,4 @@ class AttatchmentRepository {
     }
 }
 
-export default AttatchmentRepository;
+export default AttachmentRepository;

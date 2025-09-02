@@ -47,7 +47,7 @@ const taskSchema = new mongoose.Schema({
         ref: "User",
     },
 
-    attatchments: [
+    attachments: [
         {
             filename: String,
             fileUrl: String,

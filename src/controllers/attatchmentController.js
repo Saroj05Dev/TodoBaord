@@ -1,14 +1,14 @@
-class AttatchmentController {
-    constructor(attatchmentService) {
-        this.attatchmentService = attatchmentService;
+class AttachmentController {
+    constructor(attachmentService) {
+        this.attachmentService = attachmentService;
 
         this.addAttachment = this.addAttachment.bind(this);
-        this.deleteAttatchment = this.deleteAttatchment.bind(this);
+        this.deleteAttachment = this.deleteAttachment.bind(this);
     }
 
     async addAttachment (req, res) {
         try {
-            const updatedTask = await this.attatchmentService.addAttatchment(
+            const updatedTask = await this.attachmentService.addAttachments(
                 req.params.taskId,
                 req.user.id,
                 req.file
@@ -16,7 +16,7 @@ class AttatchmentController {
 
             res.status(200).json({
                 success: true,
-                message: "Attatchment added successfully",
+                message: "Attachment added successfully",
                 data: updatedTask,
                 error: {}
             })
@@ -30,18 +30,37 @@ class AttatchmentController {
         }
     }
 
-    async deleteAttatchment (req, res) {
+    async deleteAttachment (req, res) {
         try {
-            const updatedTask = await this.attatchmentService.removeAttatchment(
+            const updatedTask = await this.attachmentService.removeAttachments(
                 req.params.taskId,
                 req.user.id,
-                req.params.publicId
+                req.query.publicId
             )
 
             res.status(200).json({
                 success: true,
-                message: "Attatchment deleted successfully",
+                message: "Attachment deleted successfully",
                 data: updatedTask,
+                error: {}
+            })
+        } catch (error) {
+            res.status(error.statuscode || 500).json({
+                success: false,
+                message: error.message,
+                data: {},
+                error: error
+            })
+        }
+    }
+
+    async fetchAllAttachments (req, res) {
+        try {
+            const attachments = await this.attachmentService.fetchAllAttachments(req.params.taskId, req.user.id)
+            res.status(200).json({
+                success: true,
+                message: "Attachments fetched successfully",
+                data: attachments,
                 error: {}
             })
         } catch (error) {
@@ -55,4 +74,4 @@ class AttatchmentController {
     }
 }
 
-export default AttatchmentController;
+export default AttachmentController;

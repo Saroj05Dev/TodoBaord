@@ -42,7 +42,7 @@ app.use("/users", userRouter);
 app.use("/tasks", createTaskRouter(io));
 app.use("/actions", createActionRouter(io));
 app.use("/comments", createcommentRouter(io))
-app.use("/attatchments", createAttachmentRouter(io))
+app.use("/attachments", createAttachmentRouter(io))
 app.use("/tasks", createSubTaskRouter(io));
 
 server.listen(serverConfig.PORT, () => {

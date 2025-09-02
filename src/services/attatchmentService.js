@@ -1,15 +1,15 @@
 import fs from "fs";
 import cloudinary from "../config/cloudinaryConfig.js"
 
-class AttatchmentService {
-    constructor(attatchmentRepository, actionService, io) {
-        this.attatchmentRepository = attatchmentRepository;
+class AttachmentService {
+    constructor(attachmentRepository, actionService, io) {
+        this.attachmentRepository = attachmentRepository;
         this.actionService = actionService;
         this.io = io;
     }
 
-    async addAttatchment(taskId, userId, file) {
-        const task = await this.attatchmentRepository.getTaskById(taskId);
+    async addAttachments(taskId, userId, file) {
+        const task = await this.attachmentRepository.getTaskById(taskId);
 
         if(!task) {
             const err = new Error("Task not found!");
@@ -22,28 +22,28 @@ class AttatchmentService {
             task.createdBy.toString() !== userId.toString() &&
             (!task.assignedUser || task.assignedUser.toString() !== userId.toString())
         ){
-            const err = new Error("You are not authorized to add an attatchment to this task.");
+            const err = new Error("You are not authorized to add an attachments to this task.");
             err.statusCode = 403;
             throw err;
         }
 
         // upload to cloudinary
         const result = await cloudinary.uploader.upload(file.path, {
-            folder: "task_attatchment",
+            folder: "task_attachments",
             resource_type: "auto"
         });
 
         fs.unlinkSync(file.path) // deleting temp file
 
-        const attatchmentData = {
+        const attachmentsData = {
             filename: file.originalname,
             fileUrl: result.secure_url,
             publicId: result.public_id,
             uploadedBy: userId
         };
-        const updatedTask = await this.attatchmentRepository.addAttatchmentToTask(taskId, attatchmentData);
+        const updatedTask = await this.attachmentRepository.addAttachmentsToTasks(taskId, attachmentsData);
 
-        this.io.emit("attatchmentAdded", { taskId, attatchment: attatchmentData });
+        this.io.emit("attachmentAdded", { taskId, attachment: attachmentsData });
 
         await this.actionService.logAndEmit(
             userId,
@@ -54,23 +54,23 @@ class AttatchmentService {
         return updatedTask;
     }
 
-    async removeAttatchment(taskId, userId, publicId) {
-        const task = await this.attatchmentRepository.getTaskById(taskId);
+    async removeAttachments(taskId, userId, publicId) {
+        const task = await this.attachmentRepository.getTaskById(taskId);
         if(!task) {
             const err = new Error("Task not found");
             err.statusCode = 404;
             throw err;
         }
 
-        const attatchment = task.attatchments.find(att => att.publicId === publicId)
-        if(!attatchment) throw new Error("Attatchment not found!");
+        const attachment = task.attachments.find(att => att.publicId === publicId)
+        if(!attachment) throw new Error("Attachment not found!");
 
         // Permissiong: only uploader or creator can delete 
         if(
             task.createdBy.toString() !== userId.toString() &&
-            attatchment.uploadedBy.toString() !== userId.toString()
+            attachment.uploadedBy.toString() !== userId.toString()
         ) {
-            const err = new Error("You are not authorized to delete thi attatchment.")
+            const err = new Error("You are not authorized to delete thi attachment.")
             err.statusCode = 403
             throw err;
         }
@@ -78,18 +78,23 @@ class AttatchmentService {
         // Remove from cloudinary
         await cloudinary.uploader.destroy(publicId);
 
-        const updatedTask = await this.attatchmentRepository.removeAttatchmentFromTask(taskId, publicId);
+        const updatedTask = await this.attachmentRepository.removeAttachmentsFromTask(taskId, publicId);
 
-        this.io.emit("attatchmentDeleted", { taskId, publicId });
+        this.io.emit("attachmentDeleted", { taskId, publicId });
 
         await this.actionService.logAndEmit(
         userId,
         taskId,
         "attachment_deleted"
-);
+    );
 
         return updatedTask;
     }
+
+    async fetchAllAttachments (taskId) {
+        const attachments = await this.attachmentRepository.fetchAllAttachments(taskId);
+        return attachments;
+    }
 }
 
-export default AttatchmentService;
+export default AttachmentService;
