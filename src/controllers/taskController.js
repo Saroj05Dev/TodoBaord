@@ -177,7 +177,6 @@ class TaskController {
         const taskId = req.params.id;
         const { resolutionType, task } = req.body;
         const userId = req.user.id
-        console.log(req.body)
 
         try {
             const resolvedTask = await this.taskService.resolveConflict(taskId, userId, resolutionType, task);

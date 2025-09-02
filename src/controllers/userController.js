@@ -38,7 +38,7 @@ class UserController {
                 httpOnly: true,
                 secure: false,
                 sameSite: "lax",
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in ms
+                maxAge: 1 * 24 * 60 * 60 * 1000 // 1 days
             })
 
             res.status(200).json({

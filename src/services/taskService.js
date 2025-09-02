@@ -62,7 +62,6 @@ class TaskService {
       new Date(task.lastModified) < new Date(currentTask.lastModified) &&
       currentTask.updatedBy?.toString() !== userId.toString()
     ) {
-      console.log("Service: Conflict detected");
       const error = new Error(
         "Conflict detected, task has been modified by another user."
       );
@@ -95,11 +94,15 @@ class TaskService {
 
   async deleteTask(taskId, userId) {
     const currentTask = await this.taskRepository.findTaskById(taskId);
-    if (!currentTask) {
-      throw new Error("Task not found");
-    }
-    if (currentTask.createdBy.toString() !== userId.toString()) {
-      throw new Error("Only the creator can delete this task.");
+
+    // Ownership check (check ObjectId correctly)
+    const createdById = currentTask.createdBy?._id?.toString();
+    const assignedUserId = currentTask.assignedUser?._id?.toString();
+
+    if (createdById !== String(userId) && assignedUserId !== String(userId)) {
+      const error = new Error("You are not authorized to delete this task.");
+      error.statusCode = 403;
+      throw error;
     }
 
     const deletedTask = await this.taskRepository.deleteTask(taskId);
