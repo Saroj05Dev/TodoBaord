@@ -38,31 +38,32 @@ class CommentController {
 
   async deleteComments(req, res) {
     try {
-        const { commentId } = req.params;
-        const userId = req.user.id;
+      const { commentId } = req.params;
+      const userId = req.user.id;
 
-        const deletedComment = await this.commentService.removeComment(commentId, userId);
+      const deletedComment = await this.commentService.removeComment(commentId, userId);
 
-        res.status(200).json({
-            success: true,
-            message: "Comment deleted successfully",
-            data: deletedComment,
-            error: {}
-        });
+      res.status(200).json({
+        success: true,
+        message: "Comment deleted successfully",
+        data: deletedComment,
+        error: {}
+      });
     } catch (error) {
-        res.status(error.statusCode || 500).json({
-            success: false,
-            message: error.message,
-            data: {},
-            error: error.message
-        });
+      res.status(error.statusCode || 500).json({
+        success: false,
+        message: error.message,
+        data: {},
+        error: error.message
+      });
     }
-}
+  }
 
   async getComments(req, res) {
     try {
       const { taskId } = req.params;
-      const comments = await this.commentService.getTaskComment(taskId);
+      const userId = req.user.id; // Passing userId to the service for authorization
+      const comments = await this.commentService.getTaskComment(taskId, userId);
       res.status(200).json({
         success: true,
         message: "Comments found successfully",

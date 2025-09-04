@@ -35,11 +35,12 @@ class UserService {
         }
 
         // Create a token and return it
-        const token = jwt.sign({ id: existingUser._id, email: existingUser.email }, serverConfig.JWT_SECRET, { expiresIn: serverConfig.JWT_EXPIRES_IN });
+        const token = jwt.sign({ id: existingUser._id, email: existingUser.email}, serverConfig.JWT_SECRET, { expiresIn: serverConfig.JWT_EXPIRES_IN });
 
         return { token, userData: {
             fullName: existingUser.fullName,
-            email: existingUser.email
+            email: existingUser.email,
+            id: existingUser._id
         }}
     }
 

@@ -78,29 +78,29 @@ class UserController {
     }
 
     async getCurrentUser (req, res) {
-        const userId = req.user.id;
-        try {
-            const user = await this.userService.findUserById(userId);
-            const { fullName, email, role } = user;
-            res.status(200).json({
-                success: true,
-                message: "User found successfully",
-                data: {
-                    fullName,
-                    email,
-                    role
-                },
-                error: {}
-            })
-        } catch (error) {
-            res.status(error.statusCode || 500).json({
-                success: false,
-                message: error.message,
-                data: {},
-                error: error
-            })
-        }
+    const userId = req.user.id;
+    try {
+        const user = await this.userService.findUserById(userId);
+        const { _id, fullName, email, role } = user;
+        res.status(200).json({
+            success: true,
+            message: "User found successfully",
+            data: {
+                id: _id,          // 🔑 include id
+                fullName,
+                email,
+                role
+            }
+        })
+    } catch (error) {
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message,
+            data: {},
+            error: error
+        })
     }
+}
 
     async getAllUsers (req, res) {
         try {
@@ -124,7 +124,7 @@ class UserController {
     async logout (req, res) {
         res.cookie("authToken", "", {
             httpOnly: true,
-            sameSite: "none",
+            sameSite: "lax",
             secure: false,
             maxAge: 0
         })
