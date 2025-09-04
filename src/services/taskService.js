@@ -146,6 +146,7 @@ class TaskService {
     const targetUser = userTaskCounts.reduce((minUser, currUser) =>
       currUser.count < minUser.count ? currUser : minUser
     );
+    
     // 4. Update the task's assignedTo field
     const updatedTask = await this.taskRepository.updateTask(taskId, {
       assignedUser: targetUser.userId,

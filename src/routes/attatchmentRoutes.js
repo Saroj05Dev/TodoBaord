@@ -27,6 +27,8 @@ const createAttachmentRouter = (io) => {
     attachmentController.addAttachment
   );
 
+  attachmentRouter.get("/:taskId", isLoggedIn, attachmentController.fetchAllAttachments);
+
   attachmentRouter.delete("/:taskId", isLoggedIn, (req, res) =>
     attachmentController.deleteAttachment(req, res)
   );

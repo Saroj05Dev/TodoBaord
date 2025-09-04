@@ -91,7 +91,22 @@ class AttachmentService {
         return updatedTask;
     }
 
-    async fetchAllAttachments (taskId) {
+    async fetchAllAttachments (taskId, userId) {
+        const task = await this.attachmentRepository.getTaskById(taskId);
+        if(!task) {
+            const err = new Error("Task not found");
+            err.statusCode = 404;
+            throw err;
+        }
+        // Permissiong: only creator or assignedUser can fetch
+        if(
+            task.createdBy.toString() !== userId.toString() &&
+            (!task.assignedUser || task.assignedUser.toString() !== userId.toString())
+        ) {
+            const err = new Error("You are not authorized to view this task attachments.");
+            err.statusCode = 403;
+            throw err;
+        }
         const attachments = await this.attachmentRepository.fetchAllAttachments(taskId);
         return attachments;
     }

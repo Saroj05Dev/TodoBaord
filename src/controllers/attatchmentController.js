@@ -4,6 +4,7 @@ class AttachmentController {
 
         this.addAttachment = this.addAttachment.bind(this);
         this.deleteAttachment = this.deleteAttachment.bind(this);
+        this.fetchAllAttachments = this.fetchAllAttachments.bind(this);
     }
 
     async addAttachment (req, res) {

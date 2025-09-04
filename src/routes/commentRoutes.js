@@ -7,7 +7,7 @@ import TaskRepository from "../repositories/taskRepository.js";
 import ActionRepository from "../repositories/actionRepository.js";
 import ActionService from "../services/actionLogService.js";
 
-const createcommentRouter = (io) => {
+const createCommentRouter = (io) => {
     const commentRouter = express.Router();
 
     const commentRepository = new CommentRepository();
@@ -17,16 +17,16 @@ const createcommentRouter = (io) => {
     const commentService = new CommentService(commentRepository, taskRepository, actionService, io);
     const commentController = new CommentController(commentService);
 
-    // Add a comment
-    commentRouter.post("/:taskId", isLoggedIn, commentController.addComments)
+    // Add a comment to a task
+    commentRouter.post("/:taskId", isLoggedIn, commentController.addComments);
 
-    // Get all comments for a task
-    commentRouter.get("/:taskId", isLoggedIn, commentController.getComments);
+    // Get all comments for a specific task
+    commentRouter.get("/task/:taskId", isLoggedIn, commentController.getComments);
 
-    // delete a comment
+    // Delete a comment
     commentRouter.delete("/:commentId", isLoggedIn, commentController.deleteComments);
 
     return commentRouter;
 }
 
-export default createcommentRouter;
+export default createCommentRouter;

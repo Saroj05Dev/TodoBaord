@@ -1,8 +1,8 @@
-import mongoose from "mongoose";
 class CommentController {
   constructor(commentService) {
     this.commentService = commentService;
 
+    // Bind 'this' to the class methods to ensure correct context
     this.addComments = this.addComments.bind(this);
     this.getComments = this.getComments.bind(this);
     this.deleteComments = this.deleteComments.bind(this);
@@ -14,16 +14,16 @@ class CommentController {
       const { comment } = req.body;
       const userId = req.user.id;
 
-      const comments = await this.commentService.addComment(
+      const newComment = await this.commentService.addComment(
         taskId,
         userId,
         comment
       );
 
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: "Comment added successfully",
-        data: comments,
+        data: newComment,
         error: {},
       });
     } catch (error) {
@@ -31,7 +31,7 @@ class CommentController {
         success: false,
         message: error.message,
         data: {},
-        error: error,
+        error: error.message,
       });
     }
   }
@@ -54,16 +54,15 @@ class CommentController {
             success: false,
             message: error.message,
             data: {},
-            error
+            error: error.message
         });
     }
 }
 
-
   async getComments(req, res) {
     try {
-      const { taskId } = req.params.id;
-      const comments = await this.commentService.getComments(taskId);
+      const { taskId } = req.params;
+      const comments = await this.commentService.getTaskComment(taskId);
       res.status(200).json({
         success: true,
         message: "Comments found successfully",
@@ -75,7 +74,7 @@ class CommentController {
         success: false,
         message: error.message,
         data: {},
-        error: error,
+        error: error.message,
       });
     }
   }
