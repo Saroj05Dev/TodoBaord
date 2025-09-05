@@ -26,7 +26,7 @@ class SubTaskController {
                 success: false,
                 message: error.message,
                 data: {},
-                error
+                error: error.message
             })
         }
     }
@@ -49,7 +49,7 @@ class SubTaskController {
                 success: false,
                 message: error.message,
                 data: {},
-                error
+                error: error.message
             })
         }
     }
@@ -71,7 +71,7 @@ class SubTaskController {
                 success: false,
                 message: error.message,
                 data: {},
-                error
+                error: error.message
             })
         }
     }
@@ -93,7 +93,7 @@ class SubTaskController {
                 success: false,
                 message: error.message,
                 data: {},
-                error
+                error: error.message
             })
         }
     }

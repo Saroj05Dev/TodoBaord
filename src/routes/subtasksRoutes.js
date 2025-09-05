@@ -19,10 +19,10 @@ const createSubTaskRouter = (io) => {
     const subtaskController = new SubTaskController(subtaskService);
 
     // Routes 
-    subtaskRouter.post("/:taskId/subtasks", isLoggedIn, subtaskController.createSubTask);
-    subtaskRouter.put("/:taskId/subtasks/:subtaskId", isLoggedIn, subtaskController.updateSubTask);
-    subtaskRouter.delete("/:taskId/subtasks/:subtaskId", isLoggedIn, subtaskController.deleteSubTask);
-    subtaskRouter.get("/:taskId/subtasks", isLoggedIn, subtaskController.listSubtasks);
+    subtaskRouter.post("/:taskId", isLoggedIn, subtaskController.createSubTask);
+    subtaskRouter.put("/:subtaskId", isLoggedIn, subtaskController.updateSubTask);
+    subtaskRouter.delete("/:subtaskId", isLoggedIn, subtaskController.deleteSubTask);
+    subtaskRouter.get("/:taskId", isLoggedIn, subtaskController.listSubtasks);
 
     return subtaskRouter;
 }

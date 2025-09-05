@@ -43,7 +43,7 @@ app.use("/tasks", createTaskRouter(io));
 app.use("/actions", createActionRouter(io));
 app.use("/comments", createcommentRouter(io))
 app.use("/attachments", createAttachmentRouter(io))
-app.use("/tasks", createSubTaskRouter(io));
+app.use("/subtasks", createSubTaskRouter(io));
 
 server.listen(serverConfig.PORT, () => {
     connectDB();
