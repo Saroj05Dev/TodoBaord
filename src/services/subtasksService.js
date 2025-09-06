@@ -35,7 +35,7 @@ class SubTaskService {
         this.io.emit("subtaskCreated", created);
 
         // Action log
-        this.actionService.logAndEmit(userId, created._id, "subtask_added");
+        this.actionService.logAndEmit(userId, created._id, "subtask_added", { subtaskTitle: subtask.title });
 
         return created;
     }

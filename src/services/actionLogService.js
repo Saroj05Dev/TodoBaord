@@ -4,11 +4,12 @@ class ActionService {
         this.io = io;
     }
 
-    async logAndEmit(userId, taskId, actionType) {
+    async logAndEmit(userId, taskId, actionType, metadata = {}) {
         const action = await this.actionRepository.logAction({ 
             user: userId, 
             task: taskId, 
-            actionType
+            actionType,
+            metadata
         });
 
         this.io.emit('actionLogged', action);

@@ -20,7 +20,8 @@ class ActionRepository {
                 .sort({ createdAt: -1 })
                 .limit(limit)
                 .populate("user", "fullName email")
-                .populate("task", "title");
+                .populate("task", "title")
+                .lean() // return plain objects
             return actions;
         } catch (error) {
             console.log(error)

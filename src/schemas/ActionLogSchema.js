@@ -35,6 +35,11 @@ const actionSchema = new mongoose.Schema(
       ],
       required: true,
     },
+
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    }
   },
   {
     timestamps: { type: Date, default: Date.now },

@@ -32,7 +32,7 @@ class CommentService {
     this.io.emit("commentAdded", newComment);
 
     // Log the action
-    await this.actionService.logAndEmit(userId, newComment._id, "comment_added");
+    await this.actionService.logAndEmit(userId, newComment._id, "comment_added", { commentText });
 
     return newComment;
   }

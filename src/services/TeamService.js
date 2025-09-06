@@ -15,7 +15,7 @@ class TeamService {
     };
     const newTeam = await this.teamRepository.createTeam(teamData);
     await this.actionService.logAndEmit(userId, null, "team_created", {
-      teamId: newTeam._id,
+      teamName: name,
     });
     this.io.emit("teamCreated", newTeam);
     return newTeam;
