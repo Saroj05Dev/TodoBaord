@@ -11,7 +11,7 @@ const actionSchema = new mongoose.Schema(
     task: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Task",
-      required: true,
+      required: false, // make it false to be worked with quick actions
     },
 
     actionType: {
@@ -28,7 +28,10 @@ const actionSchema = new mongoose.Schema(
         "comment_deleted",
         "subtask_added",
         "subtask_updated",
-        "subtask_deleted"
+        "subtask_deleted",
+        "team_created", 
+        "member_invited",
+        "member_removed",
       ],
       required: true,
     },

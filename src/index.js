@@ -11,6 +11,7 @@ import createcommentRouter from "./routes/commentRoutes.js";
 import createAttachmentRouter from "./routes/attatchmentRoutes.js";
 import createSubTaskRouter from "./routes/subtasksRoutes.js";
 import cors from "cors";
+import createTeamRouter from "./routes/teamRoutes.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -44,6 +45,7 @@ app.use("/actions", createActionRouter(io));
 app.use("/comments", createcommentRouter(io))
 app.use("/attachments", createAttachmentRouter(io))
 app.use("/subtasks", createSubTaskRouter(io));
+app.use("/teams", createTeamRouter(io));
 
 server.listen(serverConfig.PORT, () => {
     connectDB();
