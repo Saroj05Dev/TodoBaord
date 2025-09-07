@@ -22,6 +22,19 @@ class TeamService {
   }
 
   async inviteMember(teamId, inviterId, email) {
+    const team = await this.teamRepository.getTeamById(teamId);
+    if (!team) {
+      const err = new Error("Team not found");
+      err.statusCode = 404;
+      throw err;
+    }
+
+    if (team.createdBy.toString() !== inviterId.toString()) {
+      const err = new Error("You are not authorized to invite members to this team.");
+      err.statusCode = 403;
+      throw err;
+    }
+
     const user = await this.userRepository.findUser({email: email});
     if (!user) {
       const err = new Error("User with this email doesn't exist");
@@ -51,8 +64,23 @@ class TeamService {
     return updatedTeam;
   }
 
-  async getTeamById(teamId) {
-    return await this.teamRepository.getTeamById(teamId);
+  async getTeamById(teamId, userId) {
+    const team = await this.teamRepository.getTeamById(teamId);
+    if (!team) {
+      const error = new Error("Team not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check if the user is a member of the team
+    const isMember = team.members.some(member => member._id.toString() === userId.toString());
+    if (!isMember) {
+      const error = new Error("You are not authorized to view this team.");
+      error.statusCode = 403;
+      throw error;
+    }
+
+    return team;
   }
 }
 
