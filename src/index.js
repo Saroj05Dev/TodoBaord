@@ -19,7 +19,7 @@ const server = http.createServer(app);
 // Setup socke.io
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: "https://todo-collab-frontend.vercel.app", // keep local one while running this app in local
         credentials: true
     }
 });
