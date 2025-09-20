@@ -36,8 +36,8 @@ class UserController {
 
             res.cookie("authToken", user.token, {
                 httpOnly: true,
-                secure: false,
-                sameSite: "lax",
+                secure: true,
+                sameSite: "none",
                 maxAge: 1 * 24 * 60 * 60 * 1000 // 1 days
             })
 
@@ -124,8 +124,8 @@ class UserController {
     async logout (req, res) {
         res.cookie("authToken", "", {
             httpOnly: true,
-            sameSite: "lax",
-            secure: false,
+            secure: true,
+            sameSite: "none",
             maxAge: 0
         })
 
