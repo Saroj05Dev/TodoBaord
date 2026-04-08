@@ -37,12 +37,20 @@ class TaskController {
 
   async findTask(req, res) {
     const userId = req.user.id;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     try {
-      const tasks = await this.taskService.findTask(userId);
+      const result = await this.taskService.findTask(userId, { page, limit });
       res.status(200).json({
         success: true,
         message: "Tasks found successfully",
-        data: tasks,
+        data: result.tasks,
+        pagination: {
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: result.totalPages,
+        },
         error: {},
       });
     } catch (error) {

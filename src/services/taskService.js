@@ -95,9 +95,9 @@ class TaskService {
     return Array.isArray(tasks) ? tasksWithShared : tasksWithShared[0];
   }
 
-  async findTask(userId) {
+  async findTask(userId, { page = 1, limit = 20 } = {}) {
     // Get personal tasks (created by or assigned to user)
-    const personalTasks = await this.taskRepository.findTask(userId);
+    const { tasks: personalTasks } = await this.taskRepository.findTask(userId, { page: 1, limit: 1000 });
 
     // Get user's teams
     const userTeams = await this.teamRepository.getTeamsByUser(userId);
@@ -106,9 +106,7 @@ class TaskService {
     // Get all task IDs shared with user's teams
     let sharedTaskIds = [];
     for (const teamId of teamIds) {
-      const teamTaskIds = await this.sharedTaskRepository.getTaskIdsByTeam(
-        teamId
-      );
+      const teamTaskIds = await this.sharedTaskRepository.getTaskIdsByTeam(teamId);
       sharedTaskIds = sharedTaskIds.concat(teamTaskIds);
     }
 
@@ -122,14 +120,19 @@ class TaskService {
     const allTasks = [...personalTasks, ...sharedTasks];
     const uniqueTasks = allTasks.filter(
       (task, index, self) =>
-        index ===
-        self.findIndex((t) => t._id.toString() === task._id.toString())
+        index === self.findIndex((t) => t._id.toString() === task._id.toString())
     );
 
     // Populate sharedWith information for all tasks
     const tasksWithSharedInfo = await this.populateSharedWith(uniqueTasks);
 
-    return tasksWithSharedInfo;
+    // Apply pagination after merge
+    const total = tasksWithSharedInfo.length;
+    const totalPages = Math.ceil(total / limit);
+    const start = (page - 1) * limit;
+    const paginated = tasksWithSharedInfo.slice(start, start + limit);
+
+    return { tasks: paginated, total, page, limit, totalPages };
   }
 
   async findTaskById(taskId, userId) {

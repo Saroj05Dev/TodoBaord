@@ -22,12 +22,21 @@ class TaskRepository {
     }
   }
 
-  async findTask(userId) {
+  async findTask(userId, { page = 1, limit = 20 } = {}) {
     try {
-      const task = await Task.find({
-        $or: [{ createdBy: userId }, { assignedUser: userId }],
-      }).populate("createdBy assignedUser updatedBy", "fullName email");
-      return task;
+      const skip = (page - 1) * limit;
+      const query = { $or: [{ createdBy: userId }, { assignedUser: userId }] };
+
+      const [tasks, total] = await Promise.all([
+        Task.find(query)
+          .populate("createdBy assignedUser updatedBy", "fullName email")
+          .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limit),
+        Task.countDocuments(query),
+      ]);
+
+      return { tasks, total, page, limit, totalPages: Math.ceil(total / limit) };
     } catch (error) {
       throw new Error("Error finding task", error);
     }
