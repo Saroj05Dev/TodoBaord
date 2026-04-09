@@ -250,19 +250,28 @@ class TaskService {
       }
     }
 
-    // Conflict detection - Use version if available, fallback to lastModified
+    // Conflict detection - skip if this is a status-only update (e.g. drag & drop)
+    // Status-only updates have no version or lastModified sent from client
+    const isStatusOnlyUpdate =
+      task.status !== undefined &&
+      task.version === undefined &&
+      task.lastModified === undefined &&
+      Object.keys(task).filter(
+        (k) => !["status", "assignedUser", "updatedBy"].includes(k)
+      ).length === 0;
+
     let hasConflict = false;
 
-    if (task.version !== undefined && task.version < currentTask.version) {
-      // Version-based conflict detection (more reliable)
-      hasConflict = true;
-    } else if (
-      task.lastModified &&
-      new Date(task.lastModified) < new Date(currentTask.lastModified) &&
-      currentTask.updatedBy?.toString() !== userId.toString()
-    ) {
-      // Timestamp-based conflict detection (fallback)
-      hasConflict = true;
+    if (!isStatusOnlyUpdate) {
+      if (task.version !== undefined && task.version < currentTask.version) {
+        hasConflict = true;
+      } else if (
+        task.lastModified &&
+        new Date(task.lastModified) < new Date(currentTask.lastModified) &&
+        currentTask.updatedBy?.toString() !== userId.toString()
+      ) {
+        hasConflict = true;
+      }
     }
 
     if (hasConflict) {
