@@ -594,21 +594,33 @@ class TaskService {
 
     let updatedData;
 
+    // Only pick the editable fields from clientTask — never let the client
+    // override version, timestamps, or internal fields
+    const { title, description, status, priority, assigneeEmail } = clientTask;
+    const editableFields = {
+      ...(title       !== undefined && { title }),
+      ...(description !== undefined && { description }),
+      ...(status      !== undefined && { status }),
+      ...(priority    !== undefined && { priority }),
+    };
+
     if (resolutionType === "overwrite") {
-      // Client version completely replaces server version
+      // Client fields completely replace server fields
       updatedData = {
-        ...clientTask,
+        ...editableFields,
         assignedUser,
         version: currentTask.version + 1,
         lastModified: Date.now(),
         updatedBy: userId,
       };
     } else if (resolutionType === "merge") {
-      // Merge server and client versions (client takes precedence)
+      // Server is the base, client fields take precedence only where provided
       updatedData = {
-        ...currentTask.toObject(),
-        ...clientTask,
-        assignedUser,
+        title:       editableFields.title       ?? currentTask.title,
+        description: editableFields.description ?? currentTask.description,
+        status:      editableFields.status      ?? currentTask.status,
+        priority:    editableFields.priority    ?? currentTask.priority,
+        assignedUser: assignedUser !== undefined ? assignedUser : currentTask.assignedUser,
         version: currentTask.version + 1,
         lastModified: Date.now(),
         updatedBy: userId,
